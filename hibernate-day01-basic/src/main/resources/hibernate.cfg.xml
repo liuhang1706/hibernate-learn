@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Hibernate 核心配置文件-->
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- 连接数据库的四要素-->
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://192.168.1.8:3306/db_hibernate</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">;Flzxsqc1</property>
+
+        <!-- hibernate 方言-->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL57Dialect</property>
+
+        <!-- 事务隔离级别：
+                1.read uncommitted
+                2.read committed
+                4.repeatable read
+                8.serializable
+         -->
+        <property name="hibernate.connection.isolation">4</property>
+
+
+        <!-- hibernate 可选配置项-->
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+        <!-- 自动建表-->
+<!--        <property name="hibernate.hbm2ddl.auto">create-drop</property>-->
+
+        <!-- hibernate 映射文件-->
+        <!-- 单表的增删改查：对应测试类One.java、Two.java-->
+<!--        <mapping resource="customer.hbm.xml"/>-->
+        <!-- 一对多（多对一）的映射文件：对应测试类Three.java -->
+        <mapping resource="customerFroLinkMan.hbm.xml"/>
+        <mapping resource="linkman.hbm.xml"/>
+        <!-- 多对多的映射文件：对应测试类 ManyToMany.java -->
+<!--        <mapping resource="manyToMany/user.hbm.xml"/>-->
+<!--        <mapping resource="manyToMany/role.hbm.xml"/>-->
+    </session-factory>
+</hibernate-configuration>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 指定Hibernate -->
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <!-- 建立类与表的映射-->
+    <class name="com.liuhang.hibernate.entity.manyToMany.Role" table="sys_role">
+        <!-- 建立类中属性与表中字段的映射：主键映射-->
+        <id name="role_id" column="role_id">
+            <generator class="native"/>
+        </id>
+        <!-- 建立类中属性与表中字段的映射-->
+        <property name="role_name" column="role_name"/>
+        <property name="role_memo" column="role_memo"/>
+        <!-- 建立与角色的多对多的映射
+             name：类的属性名称
+             table：中间表的名称
+             inverse：表示放弃外键管理权
+        -->
+        <set name="users" table="sys_user_role" cascade="save-update,delete" inverse="true">
+            <!-- column：当前对象对应中间表中的字段 -->
+            <key column="role_id"/>
+            <!-- many-to-many：
+                   class：对方类的全路径
+                   column：对方对象在中间表中的外键的名称
+            -->
+            <many-to-many class="com.liuhang.hibernate.entity.manyToMany.User" column="user_id"/>
+        </set>
+    </class>
+</hibernate-mapping>

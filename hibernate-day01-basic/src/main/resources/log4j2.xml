@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    status="WARN"：设置log4j2的自身log级别为warn
+    monitorInterval="30"：自动加载配置文件的时间间隔（秒），不低于5秒
+-->
+<!-- OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<Configuration status="WARN" monitorInterval="30">
+
+    <properties>
+        <property name="log_dir">/logs</property>
+    </properties>
+
+    <Appenders>
+
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%t] [%-5level] %c{36}:%L --- %m%n"/>
+        </Console>
+
+        <File name="file" fileName="${log_dir}/myFile.log">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%-5level] %l %c{36} - %m%n"/>
+        </File>
+
+        <!-- 使用随机读写流的日志输出，性能有所提升 -->
+        <RandomAccessFile name="accessFile" fileName="${log_dir}/myAccessLog.log">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%-5level] %l %c{36} - %m%n"/>
+        </RandomAccessFile>
+
+        <!-- 按照一定规则拆分日志文件 -->
+        <RollingFile name="rollingFile" fileName="${log_dir}/myRolling.log"
+                     filePattern="${log_dir}/$${date:yyyy-MM-dd}/myRolling-%d{yyyy-MM-dd-HH-mm}-%i.log">
+            <!-- 日志级别过滤器，高于则打印，低于则忽略 -->
+            <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%-5level] %l %c{36} - %msg%n"/>
+            <Policies>
+                <!-- 在系统启动时，触发拆分规则，生成一个新的日志文件 -->
+                <OnStartupTriggeringPolicy/>
+                <!-- 按照时间节点拆分 -->
+                <TimeBasedTriggeringPolicy/>
+                <!-- 按照文件大小拆分 -->
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <!-- 一个目录下，文件的个数最多为30个，超出则按照时间顺序进行覆盖 -->
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+
+        <!-- 异步日志方式一：异步Appender，引用上面定义好的Appender
+             这里将上面定义fileAppender转换成异步日志方式。
+             异步Appender不建议使用，因为性能提升并不明显
+         -->
+        <!--        <Async name="async">-->
+        <!--            <AppenderRef ref="file"/>-->
+        <!--        </Async>-->
+
+        <!-- 异步日志方式二：异步Logger
+             只需在classpath路径上添加：log4j2.component.properties配置文件
+             并log4j2.component.properties配置文件中配置
+             Log4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+             即可开启全局异步Logger
+         -->
+        <!-- 异步日志方式三：混合异步Logger
+             在loggers标签中，配置AsyncLogger元素
+             注意：混合异步Logger、全局异步Logger和异步Appender三者不能同时使用，
+             所以此时需要将全局异步Logger配置和Async都注释掉
+         -->
+    </Appenders>
+
+    <loggers>
+        <!--过滤掉spring和mybatis的一些无用的DEBUG信息-->
+        <logger name="org.springframework" level="INFO"></logger>
+        <logger name="org.mybatis" level="INFO"></logger>
+
+        <!-- 自定义异步Logger，也称为混合异步Logger
+             不能和全局Logger一起使用
+             includeLocation="false"：关闭行号信息，即%l中的行号不再输出，有利于提高性能
+             additivity="false"：不再继承RootLogger对象
+         -->
+        <AsyncLogger name="com.log4j2" level="trace" includeLocation="false" additivity="false">
+            <AppenderRef ref="file"/>
+        </AsyncLogger>
+        <root level="INFO">
+                        <appender-ref ref="Console"/>
+<!--            <appender-ref ref="file"/>-->
+            <!--            <appender-ref ref="rollingFile"/>-->
+        </root>
+    </loggers>
+</Configuration>
